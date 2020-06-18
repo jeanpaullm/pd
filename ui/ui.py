@@ -1,22 +1,36 @@
 import argparse #parse console input
 
-class InputParser:
-    """Class used to parse options entered by the user in console, it makes sure all the options 
-    are entered by the user otherwise an exception is raised.
+class UI:
+    """Class used to abstract the UI layer, it deals with the parsing and validating 
+    the data entered by the user in console, as well as plotting the end results.
     
      ...
 
     Attributes
     ----------
+    logic: Logic
+        Logic object that abstracts the logic layer
 
     Methods
     -------
+    set_logic(args)
+
     parse_input(args)
         Parses the input from the user taken from console
+
     """
 
-    def parse_input(self, args):
-        """ Parses the input from the user taken from console
+
+    def set_logic(self, logic):
+        self.logic = logic
+
+
+
+    def __parse_input(self, args):
+        """ Parses options entered by the user in console.
+
+        It makes sure all the options are entered by the user 
+        otherwise an exception is raised.
 
         Parameters
         ----------
