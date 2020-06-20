@@ -1,6 +1,8 @@
 import pytest
-from ui.ui import UI
+from ui import UI
+from constants import constants
 
+#parse input
 def test_parse_input_low_power():
     ui = UI()
     args = ui._UI__parse_input(['lp','-add','-bw','32','-area','-t','23','-mina', '0', '-maxa', '10'])  
@@ -104,4 +106,70 @@ def test_parse_input_hp_minp_missing():
 def test_parse_input_hp_maxp_missing():
     ui = UI()
     with pytest.raises(SystemExit):
-        args = ui._UI__parse_input(['hp','-div','-bw','64','-power','-t','90.23','-minr', '1', '-maxr', '2','-minp', '3'])     
+        ui = UI()
+        args = ui._UI__parse_input(['hp','-div','-bw','64','-power','-t','90.23','-minr', '1', '-maxr', '2','-minp', '3'])
+
+
+# create_design_space_params
+def test_create_design_space_params_invalid_circuit_type():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '0', '-maxa', '4'])
+    args.circuit_type = 'a'
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_invalid_circuit_operation():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '0', '-maxa', '4'])
+    args.add = False
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)        
+
+def test_create_design_space_params_invalid_circuit_characteristic():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '0', '-maxa', '4'])
+    args.power = False
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_low_power_negative_mina():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '-1', '-maxa', '4'])
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_low_power_negative_mixa():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '0', '-maxa', '-4'])
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_low_power_big_mina():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '10', '-maxa', '4'])
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_low_power_big_mixa():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '0', '-maxa', '10'])
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_low_power_invalid_mins():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '5', '-maxa', '4'])
+    with pytest.raises(Exception):
+        design_space_params = ui._UI__create_design_space_params(args)
+
+def test_create_design_space_params_low_power():
+    ui = UI()
+    args = ui._UI__parse_input(['lp','-add','-bw','8','-power','-t','0.25','-mina', '0', '-maxa', '4'])
+    design_space_params = ui._UI__create_design_space_params(args)
+    assert design_space_params.circuit_type == constants.LOW_POWER_CIRCUIT
+    assert design_space_params.circuit_operation == constants.ADDER #(SUB, MUL, DIV)
+    assert design_space_params.bitwidth == 8
+    assert design_space_params.charactheristic == constants.POWER
+    assert design_space_params.threshold == 0.25
+    assert design_space_params.min_approx_bits == 0
+    assert design_space_params.max_approx_bits == 4        

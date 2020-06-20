@@ -1,78 +1,4 @@
-
-class DesignSpaceParamsBuilder:
-    """
-    Class in charge of constructing a DesignSpaceParams object.
-
-    ...
-
-    Attributes
-    ----------
-
-    Methods
-    -------
-    create_design_space_params(args)
-        Given an args object returns a DesignSpaceParams object.
-    """
-
-    def create_design_space_params(self, args):
-        """Given an args object returns a DesignSpaceParams object.
-        
-        Auxiliary private methods converts args to constants
-
-        Parameters
-        ----------
-        args : Args
-            Parsed args from input
-
-        Raises
-        ------
-        Exception
-            If invalid circuit type, operation or characteristic.
-        """
-        if args.circuit_type == 'lp':
-            return LowPowerDesignSpaceParams(
-                self.__operation_to_const(args),
-                args.bitwidth,
-                self.__characteristic_to_const(args),
-                args.threshold,
-                args.mina,
-                args.maxa)
-        if args.circuit_type == 'hp':
-            return HighPerformanceDesignSpaceParams(
-                self.__operation_to_const(args),
-                args.bitwidth,
-                self.__characteristic_to_const(args),
-                args.threshold,
-                args.minp,
-                args.maxp,
-                args.minr,
-                args.maxr)
-        else:
-            raise Exception("Invalid circuit type: " + args.circuit_type)
-
-    def __operation_to_const(self, args):
-        if args.add:
-            return 'ADDER'
-        elif operation.sub:
-            return 'SUBSTRACTOR'
-        elif operation.mul:
-            return 'MULTIPLIER'
-        elif operation.div:
-            return 'DIVIDER'
-        else:
-            raise Exception("Invalid circuit type operation: No operation was specified")
-
-    def __characteristic_to_const(self, args):
-        if args.area:
-            return 'AREA'
-        elif args.delay:
-            return 'DELAY'
-        elif args.power:
-            return 'POWER'
-        else:
-            raise Exception("Invalid circuit characteristic: No characteristic was specified")
-
-    
+from constants import constants
 
 class DesignSpaceParams:
     """
@@ -93,9 +19,9 @@ class DesignSpaceParams:
     threshold : float
         Minimum value acceptable for the characteristic
     """
-    def __init__(self, circuit_type, operation, bitwidth, charactheristic, threshold):
+    def __init__(self, circuit_type, circuit_operation, bitwidth, charactheristic, threshold):
         self.circuit_type = circuit_type
-        self.operation = operation
+        self.circuit_operation = circuit_operation
         self.bitwidth = bitwidth
         self.charactheristic = charactheristic
         self.threshold = threshold
@@ -135,8 +61,23 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
     max_approx_bits: int
         Maximum  approximation bits to be simulated    
     """
-    def __init__(self, operation, bitwidth, charactheristic, threshold, min_approx_bits, max_approx_bits):
-        DesignSpaceParams.__init__(self, "LOW_POWER", operation, bitwidth, charactheristic, threshold)
+    def __init__(
+        self, 
+        circuit_operation, 
+        bitwidth, 
+        charactheristic, 
+        threshold, 
+        min_approx_bits, 
+        max_approx_bits
+    ):
+        DesignSpaceParams.__init__(
+            self,
+            constants.LOW_POWER_CIRCUIT,
+            circuit_operation,
+            bitwidth,
+            charactheristic,
+            threshold
+        )
         self.__set_approx_bits(min_approx_bits, max_approx_bits)
 
     def __set_approx_bits(self, min_value, max_value):
@@ -154,9 +95,64 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
             self.min_approx_bits = min_value
             self.max_approx_bits = max_value
 
+
 class  HighPerformanceDesignSpaceParams(DesignSpaceParams):
 
-    def __init__(self, circuit_type, operation, bitwidth, charactheristic, threshold, min_r, max_r, min_p, max_p):
-        DesignSpaceParams.__init__(self, "HIGH_PERFORMANCE", operation, bitwidth, charactheristic, threshold)
-        self.min_p = minApproxBits
-        self.maxApproxBits = maxApproxBits
+    def __init__(self, circuit_type, circuit_operation, bitwidth, charactheristic, threshold, min_r, max_r, min_p, max_p):
+        DesignSpaceParams.__init__(
+            self,
+            constants.HIGH_PERFORMANCE_CIRCUIT,
+            circuit_operation,
+            bitwidth,
+            charactheristic,
+            threshold
+        )
+        self.min_r = min_r
+        self.max_r = max_r
+        self.min_p = min_p
+        self.max_p = max_p
+        
+
+class DesignSpaceParamsBuilder:
+    """
+    Class used to implement builder pattern on DesignSpaceParams object
+    """  
+    
+    @staticmethod
+    def create_low_power_space_design_params(
+        circuit_operation,
+        bitwidth,
+        charactheristic,
+        threshold,
+        min_approx_bits,
+        max_approx_bits
+    ):
+        return LowPowerDesignSpaceParams(
+            circuit_operation,
+            bitwidth,
+            charactheristic,
+            threshold,
+            min_approx_bits,
+            max_approx_bits
+        )
+
+
+    @staticmethod
+    def create_high_performance_space_design_params(
+        circuit_operation,
+        bitwidth,
+        charactheristic,
+        threshold,
+        min_r,
+        max_r,
+        min_p,
+        max_p
+    ):
+        return LowPowerDesignSpaceParams(
+            circuit_operation,
+            bitwidth,
+            charactheristic,
+            threshold,
+            min_approx_bits,
+            max_approx_bits
+        )
