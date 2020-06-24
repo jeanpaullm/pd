@@ -54,13 +54,13 @@ class DesignSpaceStats:
         self.stop_time = datetime.now()
 
     def inc_recovered_from_database():
-        self.recovered_from_database++
+        self.recovered_from_database += 1
 
     def inc_simuations_done():
-        self.simulations_done++
+        self.simulations_done += 1
 
     def inc_simuations_failed():
-        self.simulations_failed++
+        self.simulations_failed += 1
 
     def set_solutions(solutions):
         self.solutions = solutions

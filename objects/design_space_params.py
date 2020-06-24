@@ -1,6 +1,6 @@
 from constants import constants
 
-class DesignSpaceParams:
+class DesignSpaceParams():
     """
     Parent class that describes a common DesginSpaceParams.
 
@@ -98,7 +98,7 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
 
 class  HighPerformanceDesignSpaceParams(DesignSpaceParams):
 
-    def __init__(self, circuit_type, circuit_operation, bitwidth, charactheristic, threshold, min_r, max_r, min_p, max_p):
+    def __init__(self, circuit_operation, bitwidth, charactheristic, threshold, min_r, max_r, min_p, max_p):
         DesignSpaceParams.__init__(
             self,
             constants.HIGH_PERFORMANCE_CIRCUIT,
@@ -113,7 +113,7 @@ class  HighPerformanceDesignSpaceParams(DesignSpaceParams):
         self.max_p = max_p
         
 
-class DesignSpaceParamsBuilder:
+class DesignSpaceParamsBuilder():
     """
     Class used to implement builder pattern on DesignSpaceParams object
     """  
@@ -127,6 +127,25 @@ class DesignSpaceParamsBuilder:
         min_approx_bits,
         max_approx_bits
     ):
+        """Static method crerate LowPowerDesignSpaceParams object
+
+        
+        Parameters
+        ----------
+        circuit_operation : str
+            Circuit arithmetic operation ex (ADDER, SUBSTRACTOR, MULTIPLER, DIVIDER)
+        bitwidth : int
+            Bitwidth of the circuit to be generated
+        characteristic : str
+            Charactheristic of the circuit to be explored ex ( AREA, POWER, DELAY)
+        threshold : float
+            Minimum value acceptable for the characteristic
+        min_approx_bits: int
+            Minimum  approximation bits to be simulated
+        max_approx_bits: int
+            Maximum  approximation bits to be simulated  
+        """
+    
         return LowPowerDesignSpaceParams(
             circuit_operation,
             bitwidth,

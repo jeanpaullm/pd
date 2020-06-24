@@ -35,7 +35,8 @@ class UI:
 
         parsed_args = self.__parse_input(args)
         design_space_params = self.__create_design_space_params(parsed_args)
-        self.logic.explore_design_space(design_space_params)
+        self.logic.set_design_space_params(design_space_params)
+        self.logic.init()
 
     #TODO
     def plot():
