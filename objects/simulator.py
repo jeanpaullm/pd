@@ -45,6 +45,34 @@ class Simulator():
             Simulation object that contains the parameteres to be simulated.
         """
 
+        print(
+            './AUGER',
+            constants.COMMANDS[simulation.circuit_operation],
+            simulation.approximation_method,
+            '-bw',
+            str(simulation.bitwidth),
+            '-l',
+            str(simulation.approximate_bits),
+            simulation.simulation_type,
+            '-rand',
+            '-c',
+            str(simulation.number_of_validations),
+            '-ER')
+
+        os.system("".join(['./AUGER',
+            constants.COMMANDS[simulation.circuit_operation],
+            simulation.approximation_method,
+            '-bw',
+            str(simulation.bitwidth),
+            '-l',
+            str(simulation.approximate_bits),
+            simulation.simulation_type,
+            '-rand',
+            '-c',
+            str(simulation.number_of_validations),
+            '-ER']))
+
+'''
         popen = subprocess.Popen([
             './AUGER',
             constants.COMMANDS[simulation.circuit_operation],
@@ -61,9 +89,10 @@ class Simulator():
         ], stdout=subprocess.PIPE)
         popen.wait()
         output = popen.stdout.read()
-
+'''
 
         resume_path = None
+        filename = 'RESUME.csv'
         for root, dir, files in os.walk(self.simulator_output_path):
             if filename in files:
                 resume_path = os.path.join(root, filename)

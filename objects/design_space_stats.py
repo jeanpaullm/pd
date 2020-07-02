@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 class DesignSpaceStats:
@@ -38,29 +39,36 @@ class DesignSpaceStats:
         self.design_space_size = None
         self.recovered_from_database = 0
         self.simulations_done = 0
+        self.simulation succeeded = 0
         self.simulations_failed = 0
         self.solutions = 0
 
-    def inc_design_space_generation_time(design_space_generation_time):
-        self.design_space_generation_time += design_space_generation_time
-
-    def inc_design_space_exploration_time(design_space_exploration_time):
-        self.design_space_exploration_time += design_space_exploration_time        
-
-    def start():
+    def start(self):
         self.start_time = datetime.now()
 
-    def stop():
+    def finish(self):
         self.stop_time = datetime.now()
 
-    def inc_recovered_from_database():
-        self.recovered_from_database += 1
+    def start_design_space_generation(self):
+        self.design_space_generation_time = time.perf_counter()
 
-    def inc_simuations_done():
-        self.simulations_done += 1
+    def finish_design_space_generation(self):
+        self.design_space_generation_time = time.perf_counter() - self.design_space_generation_time
 
-    def inc_simuations_failed():
-        self.simulations_failed += 1
+    def start_design_space_exploration(self):
+        self.design_space_exploration_time = time.perf_counter()
 
-    def set_solutions(solutions):
+    def finish_design_space_exploration(self):
+        self.design_space_exploration_time = time.perf_counter() - self.design_space_exploration_time
+
+    def set_design_space_size(self, design_space_size):
+        self.design_space_size = design_space_size
+
+    def set_simuations_succeeded(self, simulations_succeeded):
+        self.simulations_succeeded = simulations_succeeded
+
+    def set_simuations_failed(self, simulations_failed):
+        self.simulations_failed = simulations_failed
+
+    def set_solutions(self, solutions):
         self.solutions = solutions
