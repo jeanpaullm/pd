@@ -39,7 +39,7 @@ class DesignSpaceStats:
         self.design_space_size = None
         self.recovered_from_database = 0
         self.simulations_done = 0
-        self.simulation succeeded = 0
+        self.simulation_succeeded = 0
         self.simulations_failed = 0
         self.solutions = 0
 
@@ -47,7 +47,7 @@ class DesignSpaceStats:
         self.start_time = datetime.now()
 
     def finish(self):
-        self.stop_time = datetime.now()
+        self.finish_time = datetime.now()
 
     def start_design_space_generation(self):
         self.design_space_generation_time = time.perf_counter()
@@ -64,10 +64,10 @@ class DesignSpaceStats:
     def set_design_space_size(self, design_space_size):
         self.design_space_size = design_space_size
 
-    def set_simuations_succeeded(self, simulations_succeeded):
+    def set_simulations_succeeded(self, simulations_succeeded):
         self.simulations_succeeded = simulations_succeeded
 
-    def set_simuations_failed(self, simulations_failed):
+    def set_simulations_failed(self, simulations_failed):
         self.simulations_failed = simulations_failed
 
     def set_solutions(self, solutions):

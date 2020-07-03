@@ -25,12 +25,12 @@ VALIDATION = "-val"
 SYNTHESIS = "-syn"
 POST_SYNTHESYS = "-psy"
 
-LOW_POWER_ADDERS = ['AFA1', 'AMA1', 'AMA2',
-                    'AMA3', 'AMA4', 'AMA5',
-                    'AXA1', 'AXA2', 'AXA3',
-                    'VAXA', 'LOA', 'TGA1',
-                    'TGA2', 'InXA1', 'InXA2',
-                    'InXA3', 'CFA']
+LOW_POWER_ADDERS = ["AFA1", "AMA1", "AMA2",
+                    "AMA3", "AMA4", "AMA5",
+                    "AXA1", "AXA2", "AXA3",
+                    "VAXA", "LOA", "TGA1",
+                    "TGA2", "InXA1", "InXA2",
+                    "InXA3", "CFA"]
 
 COMMANDS = {
     ADDER: "-a",

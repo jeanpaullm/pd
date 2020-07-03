@@ -6,6 +6,9 @@ import shutil #delete output
 from constants import constants
 
 class Simulator():
+    ''' On initialization gets output path, if unable to find it
+        raises error
+    '''
     def __init__(self):
         self.simulator_output_path = self._get_simulator_output_path()
 
@@ -25,7 +28,7 @@ class Simulator():
 
         configParser = configparser.RawConfigParser()
         outputPath = None
-        if not configParser.read('../config.cfg'):
+        if not configParser.read('./config.cfg'):
             raise Exception('Error: Unable to open config.cfg, file missing.')
         else:
             outputPath = configParser.get('AAUG setup','FilesPath')
@@ -37,7 +40,8 @@ class Simulator():
         
 
     def simulate(self, simulation):
-        """Simulates the given simulation, returns true if succesful otherwise returns false.
+        """Simulates the given asign simulation charactheristics to given simulation, 
+        returns true if succesful otherwise returns false.
 
         Parameters
         ----------
@@ -59,20 +63,7 @@ class Simulator():
             str(simulation.number_of_validations),
             '-ER')
 
-        os.system("".join(['./AUGER',
-            constants.COMMANDS[simulation.circuit_operation],
-            simulation.approximation_method,
-            '-bw',
-            str(simulation.bitwidth),
-            '-l',
-            str(simulation.approximate_bits),
-            simulation.simulation_type,
-            '-rand',
-            '-c',
-            str(simulation.number_of_validations),
-            '-ER']))
 
-'''
         popen = subprocess.Popen([
             './AUGER',
             constants.COMMANDS[simulation.circuit_operation],
@@ -89,7 +80,6 @@ class Simulator():
         ], stdout=subprocess.PIPE)
         popen.wait()
         output = popen.stdout.read()
-'''
 
         resume_path = None
         filename = 'RESUME.csv'
@@ -115,6 +105,10 @@ class Simulator():
                     break    
                 lineCount += 1
         
-        shutil.rmtree(self.simulator_output_path) #conflict with threads
+        #falta obtener errores
+
+        # removes generated simulation files
+        # creates 
+        shutil.rmtree(self.simulator_output_path) 
 
         return True
