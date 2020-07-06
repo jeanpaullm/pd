@@ -40,7 +40,8 @@ class CircuitSimulation:
                  bitwidth, 
                  area = None, 
                  delay = None, 
-                 power = None, 
+                 power = None,
+                 pdp = None, 
                  error_rate = None):
         self.approximation_method = approximation_method
         self.simulation_type = simulation_type
@@ -51,6 +52,7 @@ class CircuitSimulation:
         self.area = area
         self.delay = delay
         self.power = power
+        self.pdp = pdp
         self.error_rate = error_rate
 
 class LowPowerCircuitSimulation(CircuitSimulation):
