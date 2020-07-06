@@ -3,6 +3,7 @@ import subprocess #for executing simulations
 import csv #csv manipulation
 import os# checking if file exists
 import shutil #delete output
+import re #managing regex
 from constants import constants
 
 class Simulator():
@@ -92,23 +93,33 @@ class Simulator():
             return False
 
         else:
-            resume = csv.reader(open(resume_path, newline='', delimiter=','))
+            resume = csv.reader(open(resume_path, newline=''), delimiter=',')
             lineCount = 0
+            power = 0
+            delay = 0
+            area = 0
             for row in resume:
                 if lineCount == 2:
-                    simulation.power = row[0]
+                    power = float(re.findall('\d+\.\d+', row[0])[0])  #get dynamic power
+                elif lineCount == 4:
+                    power += float(re.findall('\d+\.\d+', row[0])[0]) * 10**-3 #get cell leakage power, multiply by 10^-3 to convert nW to uW
                 elif lineCount == 8:
-                    simulation.area = row[0]
+                    delay = float(re.findall('\d+\.\d+', row[0])[0]) # get delay results
                 elif lineCount == 12:
-                    simulation.delay = row[0]
+                    area = float(re.findall('\d+\.\d+', row[0])[0]) # get area
                 elif lineCount >=  13:
                     break    
                 lineCount += 1
+
+            simulation.power = power
+            simulation.delay = delay
+            simulation.area = area
+
         
         #falta obtener errores
 
         # removes generated simulation files
         # creates 
-        shutil.rmtree(self.simulator_output_path) 
+        shutil.rmtree(self.simulator_output_path, ignore_errors = True) 
 
         return True
