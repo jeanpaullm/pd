@@ -117,3 +117,8 @@ class Logic:
             for simulation in self.simulations_succeeded:
                 if simulation.power <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
+
+        elif self.design_space_params.charactheristic == constants.PDP:
+            for simulation in self.simulations_succeeded:
+                if simulation.pdp <= self.design_space_params.threshold:
+                    self.solutions.append(simulation)

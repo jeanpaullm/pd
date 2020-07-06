@@ -12,10 +12,10 @@ DIVIDER    = "divider"
 MULTIPLIER = "multipler"
 
 # characteristics
-
 AREA  = "area"
 DELAY = "delay"
 POWER = "power"
+PDP   = "pdp"
 
 # simulation type
 

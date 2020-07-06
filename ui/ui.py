@@ -82,6 +82,7 @@ class UI:
         charactheristics_group.add_argument('-area', action = 'store_true')
         charactheristics_group.add_argument('-delay', action = 'store_true')
         charactheristics_group.add_argument('-power', action = 'store_true')
+        charactheristics_group.add_argument('-pdp', action = 'store_true')
 
         #threshold
         parser_low_power.add_argument('-t', '--threshold', type = float, required = True, help = 'minimum threshold of the selected characteristic')
@@ -109,6 +110,7 @@ class UI:
         charactheristics_group.add_argument('-area', action = 'store_true')
         charactheristics_group.add_argument('-delay', action = 'store_true')
         charactheristics_group.add_argument('-power', action = 'store_true')
+        charactheristics_group.add_argument('-pdp', action = 'store_true')
 
         #threshold
         parser_high_performance.add_argument('-t', '--threshold', type = float, required = True, help = 'minimum threshold of the selected characteristic')
@@ -202,5 +204,7 @@ class UI:
             return constants.DELAY
         elif parsed_args.power:
             return constants.POWER
+        elif parsed_args.pdp:
+            return constants.PDP
         else:
             raise Exception("Invalid circuit characteristic: No circuit characteristic to be optimized was specified")
