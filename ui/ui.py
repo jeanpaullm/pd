@@ -62,7 +62,7 @@ class UI:
 
         parser = argparse.ArgumentParser(description = 'This tool is used to explore the design space of aproximate aritmetic circuits') # Description?
 
-        subparsers = parser.add_subparsers(dest='circuit_type', required=True)
+        subparsers = parser.add_subparsers(dest='circuit_type') #, required=True) conflicts with python 3.7
 
         ## low power circuit subparser ##
         parser_low_power = subparsers.add_parser('lp', help = 'Creates low power circuits design space')
