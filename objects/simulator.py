@@ -48,7 +48,7 @@ class Simulator():
         for root, dir, files in os.walk(rootdir):
             if filename in files:
                 filepath = os.path.join(root, filename)
-            break
+                break
         return filepath
 
     def _execute_simulation(self, simulation):
@@ -70,7 +70,7 @@ class Simulator():
             '-rand',
             '-c',
             str(simulation.number_of_validations),
-            '-ER'
+            '-PMF'
         ]
 
         print(command)
@@ -85,10 +85,11 @@ class Simulator():
             retrieves area, delay, power and pdp from simulation resume file, returns False if failed.
         '''
 
-        resume_path = _find_file(self.simulator_output_path,'RESUME.csv')
+        resume_path = self._find_file(self.simulator_output_path,'RESUME.csv')
 
         #if unable to find it mark simulation as failed
         if resume_path is None:
+            print("Error unable to find resume file")
             return False
 
         lineCount = 0
@@ -114,7 +115,7 @@ class Simulator():
 
         #if line_count is smaller than 13 then the file was empty
         if lineCount >= 13:
-            power = dinamic_power + (static_power * 10**-3) #multiply static power by 10^-3 to convert nW to uW
+            power = dynamic_power + (static_power * 10**-3) #multiply static power by 10^-3 to convert nW to uW
             simulation.power = power
             simulation.delay = delay
             simulation.area = area
@@ -122,24 +123,26 @@ class Simulator():
             return True
 
         else:
+            print("Error resume file empty")
             return False
 
     def _retrieve_simulation_errors(self, simulation):
 
-        metrics_path = _find_file(self.simulator_output_path,'METRICS.csv')
+        metrics_path = self._find_file(self.simulator_output_path,'METRICS.csv')
 
         #if unable to find it mark simulation as failed
         if metrics_path is None:
+            print("Error unable to find metrics file")
             return False
 
         lineCount = 0
         errors = {}
 
-        with open(resume_path, newline='') as csvfile:
-            resume = csv.reader(csvfile, delimiter=',')
-            for row in resume:
+        with open(metrics_path, newline='') as csvfile:
+            metrics = csv.reader(csvfile, delimiter=',')
+            for row in metrics:
                 if lineCount >= 2: #on third line data starts 
-                    errors[row[0]] = row[1]
+                    errors[float(row[0])] = float(row[1])
                 lineCount += 1
 
         #if line_count is cero then the file was empty
@@ -151,14 +154,16 @@ class Simulator():
                 if value > wce_value:          #check for wce
                     wce_value = value
 
+            print(errors)
             print(med)
             print(errors[wce_value])
 
-            #simulation.med = med
+           #simulation.med = med
             #simulation.wce = errors[wce_value]
             return True
 
         else:
+            print("Error metrics file empty")
             return False
 
     def _cleanup(self):
@@ -177,8 +182,8 @@ class Simulator():
 
         is_simulation_successful = False
 
-        if _excute_simulation(simulation):
-            is_simulation_successful = _retrieve_simulation_characteristics(simulation) and _retrieve_simulation_errors(simulation)
-        _cleanup()
+        if self._execute_simulation(simulation):
+            is_simulation_successful = self._retrieve_simulation_characteristics(simulation) and self._retrieve_simulation_errors(simulation)
+        self._cleanup()
 
         return is_simulation_successful
