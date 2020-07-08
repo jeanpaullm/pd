@@ -21,14 +21,16 @@ class CircuitSimulation:
         type of circuit arithmethic simulation to be simulated
     bitwidth : int
         bitwidth of the simulated circuits
-    area: int
+    area: float
         estimated area of the circuit
-    delay: int
+    delay: float
         estimated delay of the circuit
-    power: int
+    power: float
         estimated power of the circuit
-    error_rate: int
-        error_rate of simulated the circuit
+    wce: float
+        error worst case escenario
+    med: float
+        error mean error distance
     """
 
     def __init__(self, 
@@ -42,7 +44,8 @@ class CircuitSimulation:
                  delay = None, 
                  power = None,
                  pdp = None, 
-                 error_rate = None):
+                 wce = None,
+                 med = None):
         self.approximation_method = approximation_method
         self.simulation_type = simulation_type
         self.number_of_validations = number_of_validations
@@ -53,7 +56,8 @@ class CircuitSimulation:
         self.delay = delay
         self.power = power
         self.pdp = pdp
-        self.error_rate = error_rate
+        self.wce = wce
+        self.med = med
 
 class LowPowerCircuitSimulation(CircuitSimulation):
     """

@@ -17,6 +17,10 @@ DELAY = "delay"
 POWER = "power"
 PDP   = "pdp"
 
+# error metrics
+MED  = "med"
+WCE = "wce"
+
 # simulation type
 
 GENERATION = "-gen"

@@ -100,6 +100,7 @@ class Logic:
         """ If a speified charachteristic of a given circuit is below the 
          threshold append it to the solutions"""
 
+        '''
 
         # for inside ifs because efficiency
 
@@ -121,4 +122,16 @@ class Logic:
         elif self.design_space_params.charactheristic == constants.PDP:
             for simulation in self.simulations_succeeded:
                 if simulation.pdp <= self.design_space_params.threshold:
+                    self.solutions.append(simulation)   
+
+        '''
+
+        if self.design_space_params.error_metric == constants.MED:
+            for simulation in self.simulations_succeeded:
+                if simulation.med <= self.design_space_params.threshold:
+                    self.solutions.append(simulation)
+
+        elif self.design_space_params.error_metric == constants.WCE:
+            for simulation in self.simulations_succeeded:
+                if simulation.WCE <= self.design_space_params.threshold:
                     self.solutions.append(simulation)

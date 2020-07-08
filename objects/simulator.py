@@ -158,8 +158,8 @@ class Simulator():
             print(med)
             print(errors[wce_value])
 
-           #simulation.med = med
-            #simulation.wce = errors[wce_value]
+            simulation.med = med
+            simulation.wce = errors[wce_value]
             return True
 
         else:

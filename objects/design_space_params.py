@@ -9,21 +9,24 @@ class DesignSpaceParams():
     Attributes
     ----------
     circuit_type : str
-        Circuit type constant. ex (LOW_POWER, HIGH_PERFORMANCE)
+        Circuit type constant. ex ( LOW_POWER, HIGH_PERFORMANCE )
     operation : str
-        Circuit arithmetic operation ex (ADDER, SUBSTRACTOR, MULTIPLER, DIVIDER)
+        Circuit arithmetic operation ex ( ADDER, SUBSTRACTOR, MULTIPLER, DIVIDER )
     bitwidth : int
         Bitwidth of the circuit to be generated
     characteristic : str
-        Charactheristic of the circuit to be explored ex ( AREA, POWER, DELAY)
+        Charactheristic of the circuit to be minimized ex ( AREA, POWER, DELAY )
+    error_metric : str
+        Error metric used to select the circuits ( MED, WCE )
     threshold : float
-        Minimum value acceptable for the characteristic
+        Maximun value aceptable for the given error metric
     """
-    def __init__(self, circuit_type, circuit_operation, bitwidth, charactheristic, threshold):
+    def __init__(self, circuit_type, circuit_operation, bitwidth, charactheristic, error_metric, threshold):
         self.circuit_type = circuit_type
         self.circuit_operation = circuit_operation
         self.bitwidth = bitwidth
         self.charactheristic = charactheristic
+        self.error_metric = error_metric
         self.threshold = threshold
 
     @property
@@ -53,9 +56,11 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
     bitwidth : int
         Bitwidth of the circuit to be generated
     characteristic : str
-        Charactheristic of the circuit to be explored ex ( AREA, POWER, DELAY)
+        Charactheristic of the circuit to be minimized ex ( AREA, POWER, DELAY )
+    error_metric : str
+        Error metric used to select the circuits ( MED, WCE )
     threshold : float
-        Minimum value acceptable for the characteristic
+        Maximun value aceptable for the given error metric
     min_approx_bits: int
         Minimum  approximation bits to be simulated
     max_approx_bits: int
@@ -65,7 +70,8 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
         self, 
         circuit_operation, 
         bitwidth, 
-        charactheristic, 
+        charactheristic,
+        error_metric, 
         threshold, 
         min_approx_bits, 
         max_approx_bits
@@ -76,6 +82,7 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
             circuit_operation,
             bitwidth,
             charactheristic,
+            error_metric,
             threshold
         )
         self.__set_approx_bits(min_approx_bits, max_approx_bits)
@@ -98,13 +105,14 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
 
 class  HighPerformanceDesignSpaceParams(DesignSpaceParams):
 
-    def __init__(self, circuit_operation, bitwidth, charactheristic, threshold, min_r, max_r, min_p, max_p):
+    def __init__(self, circuit_operation, bitwidth, charactheristic, error_metric, threshold, min_r, max_r, min_p, max_p):
         DesignSpaceParams.__init__(
             self,
             constants.HIGH_PERFORMANCE_CIRCUIT,
             circuit_operation,
             bitwidth,
             charactheristic,
+            error_metric,
             threshold
         )
         self.min_r = min_r
@@ -123,11 +131,12 @@ class DesignSpaceParamsBuilder():
         circuit_operation,
         bitwidth,
         charactheristic,
+        error_metric,
         threshold,
         min_approx_bits,
         max_approx_bits
     ):
-        """Static method crerate LowPowerDesignSpaceParams object
+        """Static method create LowPowerDesignSpaceParams object
 
         
         Parameters
@@ -137,9 +146,11 @@ class DesignSpaceParamsBuilder():
         bitwidth : int
             Bitwidth of the circuit to be generated
         characteristic : str
-            Charactheristic of the circuit to be explored ex ( AREA, POWER, DELAY)
+            Charactheristic of the circuit to be minimized ex ( AREA, POWER, DELAY )
+        error_metric : str
+            Error metric used to select the circuits ( MED, WCE )
         threshold : float
-            Minimum value acceptable for the characteristic
+            Maximun value aceptable for the given error metric
         min_approx_bits: int
             Minimum  approximation bits to be simulated
         max_approx_bits: int
@@ -150,6 +161,7 @@ class DesignSpaceParamsBuilder():
             circuit_operation,
             bitwidth,
             charactheristic,
+            error_metric,
             threshold,
             min_approx_bits,
             max_approx_bits
@@ -161,6 +173,7 @@ class DesignSpaceParamsBuilder():
         circuit_operation,
         bitwidth,
         charactheristic,
+        error_metric,
         threshold,
         min_r,
         max_r,
@@ -171,6 +184,7 @@ class DesignSpaceParamsBuilder():
             circuit_operation,
             bitwidth,
             charactheristic,
+            error_metric,
             threshold,
             min_approx_bits,
             max_approx_bits

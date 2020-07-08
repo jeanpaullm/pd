@@ -65,7 +65,7 @@ class UI:
         subparsers = parser.add_subparsers(dest='circuit_type') #, required=True) conflicts with python 3.7
 
         ## low power circuit subparser ##
-        parser_low_power = subparsers.add_parser('lp', help = 'Creates low power circuits design space')
+        parser_low_power = subparsers.add_parser('lp', help = 'Explores design space of low power circuits')
 
         #aritmetic operation selection
         operation_group =  parser_low_power.add_mutually_exclusive_group(required=True)
@@ -84,7 +84,11 @@ class UI:
         charactheristics_group.add_argument('-power', action = 'store_true')
         charactheristics_group.add_argument('-pdp', action = 'store_true')
 
-        #threshold
+        #especify error metrics
+        error_metrics_group =  parser_low_power.add_mutually_exclusive_group(required=True)
+        error_metrics_group.add_argument('-wce', action = 'store_true')
+        error_metrics_group.add_argument('-med', action = 'store_true')
+
         parser_low_power.add_argument('-t', '--threshold', type = float, required = True, help = 'minimum threshold of the selected characteristic')
 
         #simulation limits
@@ -93,7 +97,7 @@ class UI:
         
 
         ## high performance circuit subparser ##
-        parser_high_performance = subparsers.add_parser('hp', help = 'Creates high performance circuits design space')
+        parser_high_performance = subparsers.add_parser('hp', help = 'Explores design space of high performance circuits')
 
         #aritmetic operation selection
         operation_group =  parser_high_performance.add_mutually_exclusive_group(required=True)
@@ -111,6 +115,11 @@ class UI:
         charactheristics_group.add_argument('-delay', action = 'store_true')
         charactheristics_group.add_argument('-power', action = 'store_true')
         charactheristics_group.add_argument('-pdp', action = 'store_true')
+
+        #especify error metrics
+        error_metrics_group =  parser_high_performance.add_mutually_exclusive_group(required=True)
+        error_metrics_group.add_argument('-wce', action = 'store_true')
+        error_metrics_group.add_argument('-med', action = 'store_true')
 
         #threshold
         parser_high_performance.add_argument('-t', '--threshold', type = float, required = True, help = 'minimum threshold of the selected characteristic')
@@ -138,23 +147,25 @@ class UI:
         """
         if parsed_args.circuit_type == 'lp':
             return DesignSpaceParamsBuilder.create_low_power_space_design_params(
-                self.__parsed_args_to_const_circuit_operation(parsed_args),
-                parsed_args.bitwidth,
-                self.__parsed_args_to_const_characteristic(parsed_args),
-                parsed_args.threshold,
-                parsed_args.mina,
-                parsed_args.maxa)
+                circuit_operation = self.__parsed_args_to_const_circuit_operation(parsed_args),
+                bitwidth = parsed_args.bitwidth,
+                charactheristic = self.__parsed_args_to_const_characteristic(parsed_args),
+                error_metric = self.__parsed_args_to_const_error_metric(parsed_args),
+                threshold = parsed_args.threshold,
+                min_approx_bits = parsed_args.mina,
+                max_approx_bits = parsed_args.maxa)
 
         if parsed_args.circuit_type == 'hp':
             return DesignSpaceParamsBuilder.create_high_performance_space_design_params(
-                self.__parsed_args_to_const_circuit_operation(parsed_args),
-                parsed_args.bitwidth,
-                self.__parsed_args_to_const_characteristic(parsed_args),
-                parsed_args.threshold,
-                parsed_args.minp,
-                parsed_args.maxp,
-                parsed_args.minr,
-                parsed_args.maxr
+                circuit_operation = self.__parsed_args_to_const_circuit_operation(parsed_args),
+                bitwidth = parsed_args.bitwidth,
+                charactheristic = self.__parsed_args_to_const_characteristic(parsed_args),
+                error_metric = self.__parsed_args_to_const_error_metric(parsed_args),
+                threshold = parsed_args.threshold,
+                min_r = parsed_args.minp,
+                max_r = parsed_args.maxp,
+                min_p = parsed_args.minr,
+                max_p = parsed_args.maxr
             )
         else:
             raise Exception("Invalid circuit type: " + parsed_args.circuit_type)
@@ -208,3 +219,25 @@ class UI:
             return constants.PDP
         else:
             raise Exception("Invalid circuit characteristic: No circuit characteristic to be optimized was specified")
+
+
+    def __parsed_args_to_const_error_metric(self, parsed_args):
+        """Given the parsed args returns constant string error metric string 
+
+        Parameters
+        ----------
+        parsed_args : ParsedArgs
+            Parsed args from input
+
+        Raises
+        ------
+        Exception
+            If invalid error metric.
+        """
+
+        if parsed_args.wce:
+            return constants.WCE
+        elif parsed_args.med:
+            return constants.MED
+        else:
+            raise Exception("Invalid error metric: No error metric was specified")
