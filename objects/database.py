@@ -10,10 +10,9 @@ class Database:
     '''
 
     def __save_low_power_circuit_simulation(self, simulation):
-        with open(constants.LOW_POWER_CSV, 'w', newline='') as csvfile:
+        with open(constants.LOW_POWER_CSV, 'a', newline='') as csvfile:
             csv_writer = csv.writer(csvfile, delimiter=',')
             csv_writer.writerow([
-                simulation.circuit_type,
                 simulation.circuit_operation,
                 simulation.approximation_method,
                 simulation.bitwidth,
