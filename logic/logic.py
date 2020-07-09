@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from constants import constants
 from objects.design_space_params import DesignSpaceParams
 from objects.design_space_stats import DesignSpaceStats
@@ -42,6 +43,8 @@ class Logic:
         self.design_space_stats.set_simulations_failed(len(self.simulations_failed))
         self.design_space_stats.set_solutions(len(self.solutions))
 
+        ### REFACTORIZAR ###
+
         print('\n########## Design Space Exploration Finished ##########\n')
         print(f'Design Space Exploration started on: {self.design_space_stats.start_time}')
         print(f'Design Space Exploration finished on: {self.design_space_stats.finish_time}')
@@ -60,6 +63,28 @@ class Logic:
             print(f'  delay: {solution.delay}')
             print(f'  power: {solution.power}')
             print('')
+
+        errors = []
+        charactheristics = []
+
+        for simulation in self.simulations_succeeded:
+            if self.design_space_params.error_metric is constants.WCE:
+                errors.append(simulation.wce)
+            else:
+                errors.append(simulation.med)
+            if self.design_space_params.error_metric is constants.AREA:
+                charactheristics.append(simulation.area)
+            elif self.design_space_params.error_metric is constants.DELAY:
+                charactheristics.append(simulation.delay)
+            elif self.design_space_params.error_metric is constants.POWER:
+                charactheristics.append(simulation.power)    
+            else:
+                charactheristics.append(simulation.pdp)    
+
+        plt.plot(errors, charactheristics, 'ro')
+        plt.xlabel(self.design_space_params.error_metric)
+        plt.ylabel(self.design_space_params.charactheristic)
+        plt.show()
 
     def __generate_design_space_brute_force(self):
         """ Given the design_space_params fills the simulations array with the 
@@ -90,8 +115,7 @@ class Logic:
         #simulate 
         #fills simulations_succeeded and simulations_failed accordingly 
         for simulation in self.simulations_to_do:
-            succesful_simulation = self.simulator.simulate(simulation)
-            if succesful_simulation:
+            if self.simulator.simulate(simulation):
                 self.simulations_succeeded.append(simulation)
             else:
                 self.simulations_failed.append(simulation)
@@ -133,5 +157,5 @@ class Logic:
 
         elif self.design_space_params.error_metric == constants.WCE:
             for simulation in self.simulations_succeeded:
-                if simulation.WCE <= self.design_space_params.threshold:
+                if simulation.wce <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
