@@ -4,11 +4,13 @@ from objects.design_space_params import DesignSpaceParams
 from objects.design_space_stats import DesignSpaceStats
 from objects.circuit_simulation import CircuitSimulationBuilder
 from objects.simulator import Simulator
+from objects.database import Database
 
 class Logic:
     def __init__(self):
         self.design_space_stats = DesignSpaceStats()
         self.simulator = Simulator()
+        self.database = Database()
         self.simulations_to_do = []
         self.simulations_succeeded = []
         self.simulations_failed = []
@@ -117,6 +119,7 @@ class Logic:
         for simulation in self.simulations_to_do:
             if self.simulator.simulate(simulation):
                 self.simulations_succeeded.append(simulation)
+                self.database.save_simulation(simulation)
             else:
                 self.simulations_failed.append(simulation)
 

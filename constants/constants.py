@@ -1,3 +1,7 @@
+#database
+LOW_POWER_CSV = "lowpower.csv"
+
+
 #circuit type
 
 LOW_POWER_CIRCUIT = "low_power"
