@@ -117,11 +117,15 @@ class Logic:
         #simulate 
         #fills simulations_succeeded and simulations_failed accordingly 
         for simulation in self.simulations_to_do:
-            if self.simulator.simulate(simulation):
+            if database.load_simulation(simulation):
                 self.simulations_succeeded.append(simulation)
-                self.database.save_simulation(simulation)
-            else:
-                self.simulations_failed.append(simulation)
+                print("data retrieved from database")
+            else: 
+                if self.simulator.simulate(simulation):
+                    self.simulations_succeeded.append(simulation)
+                    self.database.save_simulation(simulation)
+                else:
+                    self.simulations_failed.append(simulation)
 
     def __explore_design_space_brute_force(self):
         """ If a speified charachteristic of a given circuit is below the 
