@@ -22,6 +22,24 @@ class Logic:
     def set_design_space_params(self, design_space_params):
         self.design_space_params = design_space_params
 
+    def simulate(self, simulation):
+        ''' Obtain the charactheristics of a simulation. 
+
+        If database flag is set it looks for the simulation on the database
+        if not found simulates it, then append the simulation to the corresponding
+        list and updates the stats.
+        '''
+        if self.database.load_simulation(simulation): #add database flag check
+                self.simulations_succeeded.append(simulation)
+                #add database list
+                print("data retrieved from database")
+        else: 
+            if self.simulator.simulate(simulation):
+                self.simulations_succeeded.append(simulation)
+                self.database.save_simulation(simulation)
+            else:
+                self.simulations_failed.append(simulation)
+
     def init(self):
         '''
         executes and generates design space, keeps track of time 
@@ -64,6 +82,8 @@ class Logic:
             print(f'  area: {solution.area}')
             print(f'  delay: {solution.delay}')
             print(f'  power: {solution.power}')
+            print(f'  med: {solution.med}')
+            print(f'  wce: {solution.wce}')
             print('')
 
         errors = []
@@ -115,20 +135,11 @@ class Logic:
                         ))
 
         #simulate 
-        #fills simulations_succeeded and simulations_failed accordingly 
         for simulation in self.simulations_to_do:
-            if database.load_simulation(simulation):
-                self.simulations_succeeded.append(simulation)
-                print("data retrieved from database")
-            else: 
-                if self.simulator.simulate(simulation):
-                    self.simulations_succeeded.append(simulation)
-                    self.database.save_simulation(simulation)
-                else:
-                    self.simulations_failed.append(simulation)
+            self.simulate(simulation)
 
     def __explore_design_space_brute_force(self):
-        """ If a speified charachteristic of a given circuit is below the 
+        """ If a specified error metric of a given circuit is below the 
          threshold append it to the solutions"""
 
         '''
