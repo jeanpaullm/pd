@@ -171,7 +171,7 @@ class Logic:
             for simulation in self.successful_simulations:
                 if simulation.med <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
-                    self.design_space_stats.increment_of_number_solutions()
+                    self.design_space_stats.increment_number_of_solutions()
 
         elif self.design_space_params.error_metric == constants.WCE:
             for simulation in self.successful_simulations:
