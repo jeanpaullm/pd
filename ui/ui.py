@@ -62,6 +62,8 @@ class UI:
 
         parser = argparse.ArgumentParser(description = 'This tool is used to explore the design space of aproximate aritmetic circuits') # Description?
 
+        parser.add_argument('-ndb', action = 'store_true')
+
         subparsers = parser.add_subparsers(dest='circuit_type') #, required=True) conflicts with python 3.7
 
         ## low power circuit subparser ##
@@ -147,6 +149,7 @@ class UI:
         """
         if parsed_args.circuit_type == 'lp':
             return DesignSpaceParamsBuilder.create_low_power_space_design_params(
+                database = not parsed_args.ndb,
                 circuit_operation = self.__parsed_args_to_const_circuit_operation(parsed_args),
                 bitwidth = parsed_args.bitwidth,
                 charactheristic = self.__parsed_args_to_const_characteristic(parsed_args),
@@ -157,6 +160,7 @@ class UI:
 
         if parsed_args.circuit_type == 'hp':
             return DesignSpaceParamsBuilder.create_high_performance_space_design_params(
+                database = not parsed_args.ndb,
                 circuit_operation = self.__parsed_args_to_const_circuit_operation(parsed_args),
                 bitwidth = parsed_args.bitwidth,
                 charactheristic = self.__parsed_args_to_const_characteristic(parsed_args),

@@ -29,7 +29,7 @@ class Logic:
         if not found simulates it, then append the simulation to the corresponding
         list and updates the stats.
         '''
-        if self.database.load_simulation(simulation): #add database flag check
+        if self.design_space_params.database and self.database.load_simulation(simulation):
                 self.successful_simulations.append(simulation)
                 self.design_space_stats.increment_number_of_loaded_simulations()
                 print("data retrieved from database")
