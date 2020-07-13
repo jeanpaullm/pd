@@ -122,7 +122,7 @@ class Logic:
         if self.design_space_params.circuit_type == constants.LOW_POWER_CIRCUIT:
             if self.design_space_params.circuit_operation == constants.ADDER:
                 for approximation_method in constants.LOW_POWER_ADDERS:
-                    for approximate_bits in range(self.design_space_params.min_approx_bits, self.design_space_params.max_approx_bits):
+                    for approximate_bits in range(self.design_space_params.min_approx_bits, self.design_space_params.max_approx_bits + 1):
                         self.total_simulations.append(CircuitSimulationBuilder.create_circuit_simulation_low_power(
                             approximation_method, 
                             constants.SYNTHESIS, 
