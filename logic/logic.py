@@ -11,9 +11,9 @@ class Logic:
         self.design_space_stats = DesignSpaceStats()
         self.simulator = Simulator()
         self.database = Database()
-        self.simulations_to_do = []
-        self.simulations_succeeded = []
-        self.simulations_failed = []
+        self.total_simulations = []
+        self.successful_simulations = []
+        self.failed_simulations = []
         self.solutions = []
 
     def set_ui(self,ui):
@@ -30,15 +30,17 @@ class Logic:
         list and updates the stats.
         '''
         if self.database.load_simulation(simulation): #add database flag check
-                self.simulations_succeeded.append(simulation)
-                #add database list
+                self.successful_simulations.append(simulation)
+                self.design_space_stats.increment_number_of_loaded_simulations()
                 print("data retrieved from database")
         else: 
             if self.simulator.simulate(simulation):
-                self.simulations_succeeded.append(simulation)
+                self.successful_simulations.append(simulation)
                 self.database.save_simulation(simulation)
+                self.design_space_stats.increment_number_of_successful_simulations()
             else:
-                self.simulations_failed.append(simulation)
+                self.failed_simulations.append(simulation)
+                self.design_space_stats.increment_number_of_failed_simulations()
 
     def init(self):
         '''
@@ -58,11 +60,6 @@ class Logic:
 
         self.design_space_stats.finish()
 
-        self.design_space_stats.set_design_space_size(len(self.simulations_to_do))
-        self.design_space_stats.set_simulations_succeeded(len(self.simulations_succeeded))
-        self.design_space_stats.set_simulations_failed(len(self.simulations_failed))
-        self.design_space_stats.set_solutions(len(self.solutions))
-
         ### REFACTORIZAR ###
 
         print('\n########## Design Space Exploration Finished ##########\n')
@@ -71,10 +68,11 @@ class Logic:
         print(f'Generation time: {self.design_space_stats.design_space_generation_time}')
         print(f'Exploration time: {self.design_space_stats.design_space_exploration_time}')
         print('')
-        print(f'Desgin space size: {self.design_space_stats.design_space_size}')
-        print(f'Succesful simulations: {self.design_space_stats.simulations_succeeded}')
-        print(f'Failed simulations: {self.design_space_stats.simulations_failed}')
-        print(f'Solutions found: {self.design_space_stats.solutions}')
+        print(f'Desgin space size: {self.design_space_stats.number_of_total_simulations}')
+        print(f'Loaded simulations: {self.design_space_stats.number_of_loaded_simulations}')
+        print(f'Succesful simulations: {self.design_space_stats.number_of_successful_simulations}')
+        print(f'Failed simulations: {self.design_space_stats.number_of_failed_simulations}')
+        print(f'Solutions found: {self.design_space_stats.number_of_solutions}')
         print('')
         for solution in self.solutions:
             print('')
@@ -89,7 +87,7 @@ class Logic:
         errors = []
         charactheristics = []
 
-        for simulation in self.simulations_succeeded:
+        for simulation in self.successful_simulations:
             if self.design_space_params.error_metric is constants.WCE:
                 errors.append(simulation.wce)
             else:
@@ -125,7 +123,7 @@ class Logic:
             if self.design_space_params.circuit_operation == constants.ADDER:
                 for approximation_method in constants.LOW_POWER_ADDERS:
                     for approximate_bits in range(self.design_space_params.min_approx_bits, self.design_space_params.max_approx_bits):
-                        self.simulations_to_do.append(CircuitSimulationBuilder.create_circuit_simulation_low_power(
+                        self.total_simulations.append(CircuitSimulationBuilder.create_circuit_simulation_low_power(
                             approximation_method, 
                             constants.SYNTHESIS, 
                             number_of_validations, 
@@ -133,9 +131,10 @@ class Logic:
                             self.design_space_params.bitwidth, 
                             approximate_bits
                         ))
+                        self.design_space_stats.increment_number_of_total_simulations()
 
         #simulate 
-        for simulation in self.simulations_to_do:
+        for simulation in self.total_simulations:
             self.simulate(simulation)
 
     def __explore_design_space_brute_force(self):
@@ -147,33 +146,35 @@ class Logic:
         # for inside ifs because efficiency
 
         if self.design_space_params.charactheristic == constants.AREA:
-            for simulation in self.simulations_succeeded:
+            for simulation in self.successful_simulations:
                 if simulation.area <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
 
         elif self.design_space_params.charactheristic == constants.DELAY:
-            for simulation in self.simulations_succeeded:
+            for simulation in self.successful_simulations:
                 if simulation.delay <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
 
         elif self.design_space_params.charactheristic == constants.POWER:
-            for simulation in self.simulations_succeeded:
+            for simulation in self.successful_simulations:
                 if simulation.power <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
 
         elif self.design_space_params.charactheristic == constants.PDP:
-            for simulation in self.simulations_succeeded:
+            for simulation in self.successful_simulations:
                 if simulation.pdp <= self.design_space_params.threshold:
                     self.solutions.append(simulation)   
 
         '''
 
         if self.design_space_params.error_metric == constants.MED:
-            for simulation in self.simulations_succeeded:
+            for simulation in self.successful_simulations:
                 if simulation.med <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
+                    self.design_space_stats.increment_of_number_solutions()
 
         elif self.design_space_params.error_metric == constants.WCE:
-            for simulation in self.simulations_succeeded:
+            for simulation in self.successful_simulations:
                 if simulation.wce <= self.design_space_params.threshold:
                     self.solutions.append(simulation)
+                    self.design_space_stats.increment_number_of_solutions()

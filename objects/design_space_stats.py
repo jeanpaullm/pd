@@ -37,11 +37,11 @@ class DesignSpaceStats:
         self.design_space_generation_time = 0
         self.design_space_exploration_time = 0
         self.design_space_size = None
-        self.recovered_from_database = 0
-        self.simulations_done = 0
-        self.simulation_succeeded = 0
-        self.simulations_failed = 0
-        self.solutions = 0
+        self.number_of_total_simulations = 0
+        self.number_of_loaded_simulations = 0
+        self.number_of_successful_simulations = 0
+        self.number_of_failed_simulations = 0
+        self.number_of_solutions = 0
 
     def start(self):
         self.start_time = datetime.now()
@@ -61,14 +61,17 @@ class DesignSpaceStats:
     def finish_design_space_exploration(self):
         self.design_space_exploration_time = time.perf_counter() - self.design_space_exploration_time
 
-    def set_design_space_size(self, design_space_size):
-        self.design_space_size = design_space_size
+    def increment_number_of_total_simulations(self):
+        self.number_of_total_simulations += 1
 
-    def set_simulations_succeeded(self, simulations_succeeded):
-        self.simulations_succeeded = simulations_succeeded
+    def increment_number_of_loaded_simulations(self):
+        self.number_of_loaded_simulations += 1
 
-    def set_simulations_failed(self, simulations_failed):
-        self.simulations_failed = simulations_failed
+    def increment_number_of_successful_simulations(self):
+        self.number_of_successful_simulations += 1
 
-    def set_solutions(self, solutions):
-        self.solutions = solutions
+    def increment_number_of_failed_simulations(self):
+        self.number_of_failed_simulations += 1 
+        
+    def increment_number_of_solutions(self):
+        self.number_of_solutions += 1
