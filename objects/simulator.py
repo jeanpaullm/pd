@@ -74,9 +74,7 @@ class Simulator():
         ]
 
         print(command)
-        popen = subprocess.Popen(command, stdout=subprocess.PIPE)
-        popen.wait()
-        output = popen.stdout.read()
+        subprocess.run(command)
 
         return True
 
@@ -85,7 +83,11 @@ class Simulator():
             retrieves area, delay, power and pdp from simulation resume file, returns False if failed.
         '''
 
-        resume_path = self._find_file(self.simulator_output_path,'RESUME.csv')
+        resume_path = self._find_file(self.simulator_output_path + "/LP/" + 
+                                      simulation.circuit_operation + "/" +
+                                      simulation.approximation_method + "/" +
+                                      str(simulation.bitwidth) + "-" +
+                                      str(simulation.approximate_bits),'RESUME.csv')
 
         #if unable to find it mark simulation as failed
         if resume_path is None:
@@ -128,7 +130,11 @@ class Simulator():
 
     def _retrieve_simulation_errors(self, simulation):
 
-        metrics_path = self._find_file(self.simulator_output_path,'METRICS.csv')
+        metrics_path = self._find_file(self.simulator_output_path + "/LP/" + 
+                                      simulation.circuit_operation + "/" +
+                                      simulation.approximation_method + "/" +
+                                      str(simulation.bitwidth) + "-" +
+                                      str(simulation.approximate_bits),'METRICS.csv')
 
         #if unable to find it mark simulation as failed
         if metrics_path is None:
@@ -171,7 +177,11 @@ class Simulator():
 
     def _cleanup(self):
         '''Removes generated simulation files '''
-        shutil.rmtree(self.simulator_output_path, ignore_errors = True)
+        shutil.rmtree(self.simulator_output_path + "/LP/" + 
+                                      simulation.circuit_operation + "/" +
+                                      simulation.approximation_method + "/" +
+                                      str(simulation.bitwidth) + "-" +
+                                      str(simulation.approximate_bits), ignore_errors = True)
 
     def simulate(self, simulation):
         """Simulates and asigns charactheristics to given simulation, 
@@ -187,6 +197,6 @@ class Simulator():
 
         if self._execute_simulation(simulation):
             is_simulation_successful = self._retrieve_simulation_characteristics(simulation) and self._retrieve_simulation_errors(simulation)
-        self._cleanup()
+        #self._cleanup()
 
         return is_simulation_successful
