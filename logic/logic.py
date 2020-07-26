@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 import matplotlib.pyplot as plt
 from constants import constants
 from objects.design_space_params import DesignSpaceParams
@@ -22,25 +23,46 @@ class Logic:
     def set_design_space_params(self, design_space_params):
         self.design_space_params = design_space_params
 
-    def simulate(self, simulation):
+    def __simulate(self, simulation):
+        if self.design_space_params.database:
+            if self.database.load_simulation(simulation):
+                self.successful_simulations.append(simulation)
+                self.design_space_stats.increment_number_of_loaded_simulations()
+                print("data retrieved from database")
+            else:
+                if self.simulator.simulate(simulation):
+                    self.successful_simulations.append(simulation)
+                    self.database.save_simulation(simulation)
+                    self.design_space_stats.increment_number_of_successful_simulations()
+                else:
+                    self.failed_simulations.append(simulation)
+                    self.design_space_stats.increment_number_of_failed_simulations()
+        else: 
+            if self.simulator.simulate(simulation):
+                self.successful_simulations.append(simulation)
+                self.design_space_stats.increment_number_of_successful_simulations()
+            else:
+                self.failed_simulations.append(simulation)
+                self.design_space_stats.increment_number_of_failed_simulations()
+
+    def simulate(self):
         ''' Obtain the charactheristics of a simulation. 
 
         If database flag is set it looks for the simulation on the database
         if not found simulates it, then append the simulation to the corresponding
         list and updates the stats.
         '''
-        if self.design_space_params.database and self.database.load_simulation(simulation):
-                self.successful_simulations.append(simulation)
-                self.design_space_stats.increment_number_of_loaded_simulations()
-                print("data retrieved from database")
+
+        if self.design_space_params.threaded:
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                for simulation in self.total_simulations:
+                    executor.submit(self.__simulate,simulation)
+
         else: 
-            if self.simulator.simulate(simulation):
-                self.successful_simulations.append(simulation)
-                self.database.save_simulation(simulation)
-                self.design_space_stats.increment_number_of_successful_simulations()
-            else:
-                self.failed_simulations.append(simulation)
-                self.design_space_stats.increment_number_of_failed_simulations()
+            for simulation in self.total_simulations:
+                self.__simulate(simulation)
+            
+        
 
     def init(self):
         '''
@@ -80,31 +102,55 @@ class Logic:
             print(f'  area: {solution.area}')
             print(f'  delay: {solution.delay}')
             print(f'  power: {solution.power}')
+            print(f'  pdp: {solution.pdp}')
             print(f'  med: {solution.med}')
             print(f'  wce: {solution.wce}')
             print('')
 
-        errors = []
-        charactheristics = []
+        all_errors = []
+        all_charactheristics = []
+        solution_errors = []
+        solution_charactheristics = []
+
 
         for simulation in self.successful_simulations:
             if self.design_space_params.error_metric is constants.WCE:
-                errors.append(simulation.wce)
+                all_errors.append(simulation.wce)
             else:
-                errors.append(simulation.med)
-            if self.design_space_params.error_metric is constants.AREA:
-                charactheristics.append(simulation.area)
-            elif self.design_space_params.error_metric is constants.DELAY:
-                charactheristics.append(simulation.delay)
-            elif self.design_space_params.error_metric is constants.POWER:
-                charactheristics.append(simulation.power)    
+                all_errors.append(simulation.med)
+            if self.design_space_params.charactheristic is constants.AREA:
+                all_charactheristics.append(simulation.area)
+            elif self.design_space_params.charactheristic is constants.DELAY:
+                all_charactheristics.append(simulation.delay)
+            elif self.design_space_params.charactheristic is constants.POWER:
+                all_charactheristics.append(simulation.power)    
             else:
-                charactheristics.append(simulation.pdp)    
+                all_charactheristics.append(simulation.pdp)    
 
-        plt.plot(errors, charactheristics, 'ro')
+        for simulation in self.solutions:
+            if self.design_space_params.error_metric is constants.WCE:
+                solution_errors.append(simulation.wce)
+            else:
+                solution_errors.append(simulation.med)
+            if self.design_space_params.charactheristic is constants.AREA:
+                solution_charactheristics.append(simulation.area)
+            elif self.design_space_params.charactheristic is constants.DELAY:
+                solution_charactheristics.append(simulation.delay)
+            elif self.design_space_params.charactheristic is constants.POWER:
+                solution_charactheristics.append(simulation.power)    
+            else:
+                solution_charactheristics.append(simulation.pdp)  
+
+        pareto_charactheristics, pareto_errors = self.pareto_front( all_charactheristics, all_errors)
+
+        plt.axes()
+        plt.axvline(x = self.design_space_params.threshold, linestyle='--')
+        plt.plot(all_errors, all_charactheristics, 'k.')
+        plt.plot(pareto_errors, pareto_charactheristics, 'rx')
+        plt.plot(solution_errors, solution_charactheristics, 'c.')
         plt.xlabel(self.design_space_params.error_metric)
         plt.ylabel(self.design_space_params.charactheristic)
-        plt.show()
+        plt.savefig('result.png')
 
     def __generate_design_space_brute_force(self):
         """ Given the design_space_params fills the simulations array with the 
@@ -134,47 +180,77 @@ class Logic:
                         self.design_space_stats.increment_number_of_total_simulations()
 
         #simulate 
-        for simulation in self.total_simulations:
-            self.simulate(simulation)
+        self.simulate()
 
     def __explore_design_space_brute_force(self):
-        """ If a specified error metric of a given circuit is below the 
-         threshold append it to the solutions"""
+        """ Searches the simulation that is below the specified error metric threshold
+        and has the minimun circuit characteristic and appends it to the 
+        """
 
-        '''
+        for simulation in self.successful_simulations:
+                if (
+                        (
+                            self.design_space_params.error_metric is constants.MED 
+                            and simulation.med <= self.design_space_params.threshold
+                        )
+                        or
+                        (
+                            self.design_space_params.error_metric is constants.WCE 
+                            and simulation.wce <= self.design_space_params.threshold
+                        )
+                    ):
+                    
+                    if not self.solutions:
+                        self.solutions.append(simulation)
+                        self.design_space_stats.increment_number_of_solutions()
+                    elif (
+                        (
+                            self.design_space_params.charactheristic == constants.AREA 
+                            and simulation.area < self.solutions[0].area
+                        )
+                        or
+                        (
+                            self.design_space_params.charactheristic == constants.DELAY 
+                            and simulation.delay < self.solutions[0].delay
+                        )
+                        or
+                        (
+                            self.design_space_params.charactheristic == constants.POWER 
+                            and simulation.power < self.solutions[0].power
+                        )
+                        or
+                        (
+                            self.design_space_params.charactheristic == constants.PDP 
+                            and simulation.pdp < self.solutions[0].pdp
+                        )
+                    ):
+                        self.solutions[0] = simulation
 
-        # for inside ifs because efficiency
+    def pareto_front(self, characteristic, error):
+        
+        pareto_charactheristic = []
+        pareto_error = []
+        dominated = False
 
-        if self.design_space_params.charactheristic == constants.AREA:
-            for simulation in self.successful_simulations:
-                if simulation.area <= self.design_space_params.threshold:
-                    self.solutions.append(simulation)
+        for (charactheristic1, error1) in zip(characteristic, error):
+            for (charactheristic2, error2) in zip(characteristic, error):
+                if(
+                    (
+                        charactheristic2 <= charactheristic1
+                        and error2 <= error1
+                    )
+                    and
+                    (    
+                        charactheristic2 < charactheristic1
+                        or error2 < error1
+                    )   
+                ):
+                    dominated = True
+                    break
+            if not dominated:
+                pareto_charactheristic.append(charactheristic1)
+                pareto_error.append(error1)
+            else:
+                dominated = False
 
-        elif self.design_space_params.charactheristic == constants.DELAY:
-            for simulation in self.successful_simulations:
-                if simulation.delay <= self.design_space_params.threshold:
-                    self.solutions.append(simulation)
-
-        elif self.design_space_params.charactheristic == constants.POWER:
-            for simulation in self.successful_simulations:
-                if simulation.power <= self.design_space_params.threshold:
-                    self.solutions.append(simulation)
-
-        elif self.design_space_params.charactheristic == constants.PDP:
-            for simulation in self.successful_simulations:
-                if simulation.pdp <= self.design_space_params.threshold:
-                    self.solutions.append(simulation)   
-
-        '''
-
-        if self.design_space_params.error_metric == constants.MED:
-            for simulation in self.successful_simulations:
-                if simulation.med <= self.design_space_params.threshold:
-                    self.solutions.append(simulation)
-                    self.design_space_stats.increment_number_of_solutions()
-
-        elif self.design_space_params.error_metric == constants.WCE:
-            for simulation in self.successful_simulations:
-                if simulation.wce <= self.design_space_params.threshold:
-                    self.solutions.append(simulation)
-                    self.design_space_stats.increment_number_of_solutions()
+        return pareto_charactheristic, pareto_error
