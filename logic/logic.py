@@ -93,16 +93,15 @@ class Logic:
 
         print(f'Database: {self.design_space_params.database}')
         print(f'Threads: {self.design_space_params.threaded}')
-
+        print('')
         print(f'Circuit Type: {self.design_space_params.circuit_type}')
         print(f'Aritmethic Circuit: {self.design_space_params.circuit_operation}')
         print(f'Bitwidth: {self.design_space_params.bitwidth}')
         print(f'Minimun Approximation: {self.design_space_params.min_approx_bits}')
         print(f'Maximum Approximation: {self.design_space_params.max_approx_bits}')
-
         print(f'Minimized Charactheristic: {self.design_space_params.charactheristic}')
         print(f'Error Metric: {self.design_space_params.error_metric}')
-
+        print('')
         print(f'Design Space Exploration started on: {self.design_space_stats.start_time}')
         print(f'Design Space Exploration finished on: {self.design_space_stats.finish_time}')
         print(f'Generation time: {self.design_space_stats.design_space_generation_time}')
@@ -127,6 +126,35 @@ class Logic:
 
         #Print on file
 
+        f = open("log.txt", "a")
+        f.write('\n########## Design Space Exploration Finished ##########\n')
+        f.write(f'Database: {self.design_space_params.database}\n')
+        f.write(f'Threads: {self.design_space_params.threaded}\n\n')
+        f.write(f'Circuit Type: {self.design_space_params.circuit_type}\n')
+        f.write(f'Aritmethic Circuit: {self.design_space_params.circuit_operation}\n')
+        f.write(f'Bitwidth: {self.design_space_params.bitwidth}\n')
+        f.write(f'Minimun Approximation: {self.design_space_params.min_approx_bits}\n')
+        f.write(f'Maximum Approximation: {self.design_space_params.max_approx_bits}\n\n')
+        f.write(f'Minimized Charactheristic: {self.design_space_params.charactheristic}\n')
+        f.write(f'Error Metric: {self.design_space_params.error_metric}\n\n')
+        f.write(f'Design Space Exploration started on: {self.design_space_stats.start_time}\n')
+        f.write(f'Design Space Exploration finished on: {self.design_space_stats.finish_time}\n')
+        f.write(f'Generation time: {self.design_space_stats.design_space_generation_time}\n')
+        f.write(f'Exploration time: {self.design_space_stats.design_space_exploration_time}\n\n')
+        f.write(f'Desgin space size: {self.design_space_stats.number_of_total_simulations}\n')
+        f.write(f'Loaded simulations: {self.design_space_stats.number_of_loaded_simulations}\n')
+        f.write(f'Succesful simulations: {self.design_space_stats.number_of_successful_simulations}\n')
+        f.write(f'Failed simulations: {self.design_space_stats.number_of_failed_simulations}\n')
+        f.write(f'Solutions found: {self.design_space_stats.number_of_solutions}\n')
+        for solution in self.solutions:
+            f.write(f'  {solution.approximation_method} {solution.bitwidth} {solution.approximate_bits}')
+            f.write(f' area: {solution.area}')
+            f.write(f' delay: {solution.delay}')
+            f.write(f' power: {solution.power}')
+            f.write(f' pdp: {solution.pdp}')
+            f.write(f' med: {solution.med}')
+            f.write(f' wce: {solution.wce}')
+        f.close()
 
         #Gerenate graphics
 
