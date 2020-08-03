@@ -24,27 +24,32 @@ class Logic:
         self.design_space_params = design_space_params
 
     def __simulate(self, simulation):
+
         if self.design_space_params.database:
             if self.database.load_simulation(simulation):
                 self.successful_simulations.append(simulation)
                 self.design_space_stats.increment_number_of_loaded_simulations()
-                print("data retrieved from database")
+                print(f'Loaded  -> {simulation.approximation_method} {simulation.approximate_bits}/{simulation.bitwidth} Validations: {simulation.number_of_validations}')
             else:
                 if self.simulator.simulate(simulation):
                     self.successful_simulations.append(simulation)
                     self.database.save_simulation(simulation)
                     self.design_space_stats.increment_number_of_successful_simulations()
+                    print(f'Success -> {simulation.approximation_method} {simulation.approximate_bits}/{simulation.bitwidth} Validations: {simulation.number_of_validations}')
                 else:
                     self.failed_simulations.append(simulation)
                     self.design_space_stats.increment_number_of_failed_simulations()
+                    print(f'Failed  -> {simulation.approximation_method} {simulation.approximate_bits}/{simulation.bitwidth} Validations: {simulation.number_of_validations}')
         else: 
             if self.simulator.simulate(simulation):
                 self.successful_simulations.append(simulation)
                 self.design_space_stats.increment_number_of_successful_simulations()
+                print(f'Success -> {simulation.approximation_method} {simulation.approximate_bits}/{simulation.bitwidth} Validations: {simulation.number_of_validations}')
             else:
                 self.failed_simulations.append(simulation)
                 self.design_space_stats.increment_number_of_failed_simulations()
-
+                print(f'Failed  -> {simulation.approximation_method} {simulation.approximate_bits}/{simulation.bitwidth} Validations: {simulation.number_of_validations}')
+    
     def simulate(self):
         ''' Obtain the charactheristics of a simulation. 
 
@@ -82,9 +87,22 @@ class Logic:
 
         self.design_space_stats.finish()
 
-        ### REFACTORIZAR ###
+        ### print on screen
 
         print('\n########## Design Space Exploration Finished ##########\n')
+
+        print(f'Database: {self.design_space_params.database}')
+        print(f'Threads: {self.design_space_params.threaded}')
+
+        print(f'Circuit Type: {self.design_space_params.circuit_type}')
+        print(f'Aritmethic Circuit: {self.design_space_params.circuit_operation}')
+        print(f'Bitwidth: {self.design_space_params.bitwidth}')
+        print(f'Minimun Approximation: {self.design_space_params.min_approx_bits}')
+        print(f'Maximum Approximation: {self.design_space_params.max_approx_bits}')
+
+        print(f'Minimized Charactheristic: {self.design_space_params.charactheristic}')
+        print(f'Error Metric: {self.design_space_params.error_metric}')
+
         print(f'Design Space Exploration started on: {self.design_space_stats.start_time}')
         print(f'Design Space Exploration finished on: {self.design_space_stats.finish_time}')
         print(f'Generation time: {self.design_space_stats.design_space_generation_time}')
@@ -106,6 +124,12 @@ class Logic:
             print(f'  med: {solution.med}')
             print(f'  wce: {solution.wce}')
             print('')
+
+        #Print on file
+
+
+        #Gerenate graphics
+
 
         all_errors = []
         all_charactheristics = []
