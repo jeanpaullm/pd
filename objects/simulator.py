@@ -73,8 +73,8 @@ class Simulator():
             '-PMF'
         ]
 
-        print(command)
-        subprocess.run(command)
+        #print(command)
+        subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         return True
 
