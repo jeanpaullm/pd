@@ -155,20 +155,18 @@ class Simulator():
         if lineCount > 0:
             med = 0
             wce_value = 0
-            for value in errors:               #iterate over errors dictionary
-                med += value * errors[value]   #calculate med 
-                if value > wce_value:          #check for wce
+            for value in errors:                  #iterate over errors dictionary
+                med += abs(value * errors[value]) #calculate med 
+                if value > wce_value:             #check for wce
                     wce_value = value
 
-            print(errors)
-            print(med)
-            print(wce_value)
+            #print(errors)
+            #print(med)
+            #print(wce_value)
 
             simulation.med = med
             simulation.wce = wce_value
 
-            print(simulation.med)
-            print(simulation.wce)
             return True
 
         else:
