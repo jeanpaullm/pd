@@ -15,6 +15,7 @@ class Logic:
         self.total_simulations = []
         self.successful_simulations = []
         self.failed_simulations = []
+        self.pareto_front_simulations = []
         self.solutions = []
 
     def set_ui(self,ui):
@@ -157,45 +158,28 @@ class Logic:
         f.close()
 
         #Gerenate graphics
-
-
         all_errors = []
         all_charactheristics = []
         solution_errors = []
         solution_charactheristics = []
-
+        pareto_errors = []
+        pareto_charactheristics = []
 
         for simulation in self.successful_simulations:
-            if self.design_space_params.error_metric is constants.WCE:
-                all_errors.append(simulation.wce)
-            else:
-                all_errors.append(simulation.med)
-            if self.design_space_params.charactheristic is constants.AREA:
-                all_charactheristics.append(simulation.area)
-            elif self.design_space_params.charactheristic is constants.DELAY:
-                all_charactheristics.append(simulation.delay)
-            elif self.design_space_params.charactheristic is constants.POWER:
-                all_charactheristics.append(simulation.power)    
-            else:
-                all_charactheristics.append(simulation.pdp)    
+            all_errors.append(getattr(simulation, self.design_space_params.error_metric))
+            all_charactheristics.append(getattr(simulation, self.design_space_params.charactheristic))
 
         for simulation in self.solutions:
-            if self.design_space_params.error_metric is constants.WCE:
-                solution_errors.append(simulation.wce)
-            else:
-                solution_errors.append(simulation.med)
-            if self.design_space_params.charactheristic is constants.AREA:
-                solution_charactheristics.append(simulation.area)
-            elif self.design_space_params.charactheristic is constants.DELAY:
-                solution_charactheristics.append(simulation.delay)
-            elif self.design_space_params.charactheristic is constants.POWER:
-                solution_charactheristics.append(simulation.power)    
-            else:
-                solution_charactheristics.append(simulation.pdp)  
+            solution_errors.append(getattr(simulation, self.design_space_params.error_metric))
+            solution_charactheristics.append(getattr(simulation, self.design_space_params.charactheristic))
 
-        pareto_charactheristics, pareto_errors = self.pareto_front( all_charactheristics, all_errors)
+        for simulation in self.pareto_front_simulations:
+            pareto_errors.append(getattr(simulation, self.design_space_params.error_metric))
+            pareto_charactheristics.append(getattr(simulation, self.design_space_params.charactheristic))
 
         plt.axes()
+        plt.xscale('symlog')
+        plt.grid(True)
         plt.axvline(x = self.design_space_params.threshold, linestyle='--')
         plt.plot(all_errors, all_charactheristics, 'k.')
         plt.plot(pareto_errors, pareto_charactheristics, 'rx')
@@ -239,70 +223,37 @@ class Logic:
         and has the minimun circuit characteristic and appends it to the 
         """
 
-        for simulation in self.successful_simulations:
-                if (
-                        (
-                            self.design_space_params.error_metric is constants.MED 
-                            and simulation.med <= self.design_space_params.threshold
-                        )
-                        or
-                        (
-                            self.design_space_params.error_metric is constants.WCE 
-                            and simulation.wce <= self.design_space_params.threshold
-                        )
-                    ):
-                    
-                    if not self.solutions:
-                        self.solutions.append(simulation)
-                        self.design_space_stats.increment_number_of_solutions()
-                    elif (
-                        (
-                            self.design_space_params.charactheristic == constants.AREA 
-                            and simulation.area < self.solutions[0].area
-                        )
-                        or
-                        (
-                            self.design_space_params.charactheristic == constants.DELAY 
-                            and simulation.delay < self.solutions[0].delay
-                        )
-                        or
-                        (
-                            self.design_space_params.charactheristic == constants.POWER 
-                            and simulation.power < self.solutions[0].power
-                        )
-                        or
-                        (
-                            self.design_space_params.charactheristic == constants.PDP 
-                            and simulation.pdp < self.solutions[0].pdp
-                        )
-                    ):
-                        self.solutions[0] = simulation
+        self.generate_pareto_front()
 
-    def pareto_front(self, characteristic, error):
-        
-        pareto_charactheristic = []
-        pareto_error = []
+        for simulation in self.pareto_front_simulations:
+            if(getattr(simulation, self.design_space_params.error_metric) <= self.design_space_params.threshold):
+                if not self.solutions:
+                    self.solutions.append(simulation)
+                    self.design_space_stats.increment_number_of_solutions()
+                elif(getattr(simulation, self.design_space_params.charactheristic) < getattr(self.solutions[0],self.design_space_params.charactheristic)):
+                    self.solutions[0] = simulation
+
+    def generate_pareto_front(self):
+
         dominated = False
 
-        for (charactheristic1, error1) in zip(characteristic, error):
-            for (charactheristic2, error2) in zip(characteristic, error):
+        for simulation1 in self.successful_simulations:
+            for simulation2 in self.successful_simulations:
                 if(
                     (
-                        charactheristic2 <= charactheristic1
-                        and error2 <= error1
+                        getattr(simulation2, self.design_space_params.charactheristic) <= getattr(simulation1, self.design_space_params.charactheristic) 
+                        and getattr(simulation2, self.design_space_params.error_metric) <= getattr(simulation1, self.design_space_params.error_metric)
                     )
                     and
                     (    
-                        charactheristic2 < charactheristic1
-                        or error2 < error1
+                        getattr(simulation2, self.design_space_params.charactheristic) < getattr(simulation1, self.design_space_params.charactheristic) 
+                        or getattr(simulation2, self.design_space_params.error_metric) < getattr(simulation1, self.design_space_params.error_metric)
                     )   
                 ):
                     dominated = True
                     break
+
             if not dominated:
-                pareto_charactheristic.append(charactheristic1)
-                pareto_error.append(error1)
+                self.pareto_front_simulations.append(simulation1)
             else:
                 dominated = False
-
-        return pareto_charactheristic, pareto_error
