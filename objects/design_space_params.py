@@ -21,8 +21,9 @@ class DesignSpaceParams():
     threshold : float
         Maximun value aceptable for the given error metric
     """
-    def __init__(self, database, circuit_type, circuit_operation, bitwidth, charactheristic, error_metric, threshold):
+    def __init__(self, database, threaded, circuit_type, circuit_operation, bitwidth, charactheristic, error_metric, threshold):
         self.database = database
+        self.threaded = threaded
         self.circuit_type = circuit_type
         self.circuit_operation = circuit_operation
         self.bitwidth = bitwidth
@@ -70,6 +71,7 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
     def __init__(
         self, 
         database,
+        threaded,
         circuit_operation, 
         bitwidth, 
         charactheristic,
@@ -81,6 +83,7 @@ class  LowPowerDesignSpaceParams(DesignSpaceParams):
         DesignSpaceParams.__init__(
             self,
             database,
+            threaded,
             constants.LOW_POWER_CIRCUIT,
             circuit_operation,
             bitwidth,
@@ -112,6 +115,7 @@ class  HighPerformanceDesignSpaceParams(DesignSpaceParams):
         DesignSpaceParams.__init__(
             self,
             database,
+            threaded,
             constants.HIGH_PERFORMANCE_CIRCUIT,
             circuit_operation,
             bitwidth,
@@ -133,6 +137,7 @@ class DesignSpaceParamsBuilder():
     @staticmethod
     def create_low_power_space_design_params(
         database,
+        threaded,
         circuit_operation,
         bitwidth,
         charactheristic,
@@ -164,6 +169,7 @@ class DesignSpaceParamsBuilder():
     
         return LowPowerDesignSpaceParams(
             database,
+            threaded,
             circuit_operation,
             bitwidth,
             charactheristic,
@@ -177,6 +183,7 @@ class DesignSpaceParamsBuilder():
     @staticmethod
     def create_high_performance_space_design_params(
         database,
+        threaded,
         circuit_operation,
         bitwidth,
         charactheristic,
@@ -189,6 +196,7 @@ class DesignSpaceParamsBuilder():
     ):
         return LowPowerDesignSpaceParams(
             database,
+            threaded,
             circuit_operation,
             bitwidth,
             charactheristic,

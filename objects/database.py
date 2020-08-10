@@ -32,12 +32,12 @@ class Database:
         with open(constants.LOW_POWER_CSV, newline='') as csvfile:
             csv_reader = csv.reader(csvfile, delimiter=',')
             for row in csv_reader:
-                if simulation.circuit_operation      ==     row[0]  and
+                if (simulation.circuit_operation     ==     row[0]  and
                     simulation.approximation_method  ==     row[1]  and
                     simulation.bitwidth              == int(row[2]) and
                     simulation.approximate_bits      == int(row[3]) and
                     simulation.simulation_type       ==     row[4]  and
-                    simulation.number_of_validations == int(row[5]):
+                    simulation.number_of_validations == int(row[5])):
                     simulation.area  = float(row[6])
                     simulation.delay = float(row[7])
                     simulation.power = float(row[8])

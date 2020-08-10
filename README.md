@@ -5,7 +5,7 @@ This tool automates the generation and exploration of aproximate arithmetic circ
 ## Dependencies
 
 * Python3 >= 3.6.8
-* Mathplotlib >= 3.2.2
+* Matplotlib >= 3.2.2
 * Synopsys 2017
 * Modelsim >= 10.2
 * Quetasim >= 10.2
